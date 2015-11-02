@@ -1,0 +1,105 @@
+#!/bin/bash
+
+# Copyright (c) 2015 sudokode <sudokode@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+which jshon &>/dev/null || echo aurctl requires jshon to parse JSON >&2
+which git &>/dev/null || echo aurctl requires git to download targets >&2
+
+print_help() {
+  cat <<HELP
+Usage: aurctl <command> [option(s)] <target(s)>
+
+A simple tool to control the AUR
+
+Commands:
+  help        print this help
+  search      search for target(s) [not fully implemented]
+  msearch     search for packages maintained by target(s) [not fully implemented]
+  info        get information about target(s) [not fully implemented]
+  download    download the target(s) [not fully implemented]
+
+  Commands need not be completed, e.g. 'aurctl s foo' or 'aurctl inf bar'.
+
+Options:
+  -h    Print this help
+
+Report problems: <issues link>
+HELP
+}
+
+OPTERR=1
+while getopts "h" opt; do
+  case $opt in
+    h)
+      print_help
+      exit
+      ;;
+  esac
+done
+shift "$((OPTIND-1))"
+
+query() {
+  t=$1; shift
+  args="$@"
+
+  if [[ $t == "multiinfo" ]]; then
+    args=$(sed 's/ \+/\&arg=/g' <<< "$args")
+  fi
+
+  curl -sGd "type=$t&arg=$args" https://aur.archlinux.org/rpc.php
+}
+
+search() {
+  arg="$@"
+  query search $arg | jshon
+}
+
+msearch() {
+  arg="$@"
+  query msearch $arg | jshon
+}
+
+pinfo() {
+  arg=$1
+  query info $arg | jshon
+}
+
+multiinfo() {
+  args="$@"
+  query multiinfo $args | jshon
+}
+
+case $1 in
+  h|he|hel|help|wtf)
+    print_help
+    ;;
+  s|se|sea|sear|search)
+    search $2; echo
+    ;;
+  m|ms|mse|msea|msear|msearc|msearch)
+    msearch $2; echo
+    ;;
+  i|in|inf|info)
+    pinfo $2; echo
+    ;;
+  d|do|dow|down|downl|downlo|downloa|download)
+    git clone https://aur.archlinux.org/${2}.git
+    ;;
+  *)
+    print_help >&2
+    ;;
+esac
+
