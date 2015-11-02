@@ -22,7 +22,7 @@ print_help() {
   cat <<HELP
 Usage: aurctl <command> [option(s)] <target(s)>
 
-A simple tool to control the AUR
+Description: A simple tool to query the AUR
 
 Commands:
   help        print this help
@@ -36,7 +36,7 @@ Commands:
 Options:
   -h    Print this help
 
-Report problems: <issues link>
+Report problems: https://github.com/sudokode/aurctl/issues
 HELP
 }
 
