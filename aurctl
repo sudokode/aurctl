@@ -83,19 +83,19 @@ multiinfo() {
 }
 
 case $1 in
-  h|he|hel|help|wtf)
+  h*|wtf)
     print_help
     ;;
-  s|se|sea|sear|search)
+  s*)
     search $2; echo
     ;;
-  m|ms|mse|msea|msear|msearc|msearch)
+  m*)
     msearch $2; echo
     ;;
-  i|in|inf|info)
+  i*)
     pinfo $2; echo
     ;;
-  d|do|dow|down|downl|downlo|downloa|download)
+  d*)
     git clone https://aur.archlinux.org/${2}.git
     ;;
   *)
